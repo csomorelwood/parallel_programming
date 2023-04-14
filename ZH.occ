@@ -1,0 +1,68 @@
+#USE "course.lib"
+
+PROC main(CHAN BYTE keyboard, screen, error)
+  CHAN INT c:
+  INT countervariable:
+  INT final:
+
+  PROC lowercase(CHAN BYTE input, CHAN INT output, CHAN BYTE output2)
+    BYTE ch:
+    BOOL reading:
+    INT ret:
+    SEQ
+      reading:=TRUE
+      WHILE reading
+        SEQ
+          input ? ch
+          IF
+            (ch='o') OR (ch='c') OR (ch='a') OR (ch='m')
+              SEQ
+                output2 ! ch
+                ret:=0
+            ch='*n'
+              SEQ
+                ret:=-1
+                reading:=FALSE
+            TRUE
+              ret:=1
+          output ! ret
+  :
+
+  PROC counter(CHAN INT input, INT countervariable)
+    INT num:
+    BOOL reading:
+    SEQ
+      reading:=TRUE
+      WHILE reading
+        SEQ
+          input ? num
+          IF
+            num=0
+              SEQ
+                countervariable:=countervariable+1
+            num=(-1)
+              reading:=FALSE
+            TRUE
+              SKIP
+  :
+
+  SEQ
+    countervariable := 0
+    PAR
+      lowercase(keyboard, c, error)
+      counter(c, countervariable)
+
+    out.string("*n",0,screen)
+    out.int(countervariable,0,screen)
+    out.string("*n",0,screen)
+    final := countervariable REM 3
+    IF
+      final=0
+        SEQ
+          out.string("oszthato",0,screen)
+          out.string("*n",0,screen)
+      TRUE
+        SEQ
+          out.string("nem oszthato",0,screen)
+          out.string("*n",0,screen)
+:
